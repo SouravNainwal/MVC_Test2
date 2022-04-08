@@ -14,14 +14,10 @@ namespace MVC_Test2.Data_Mvc
     
     public partial class EMP_Entry
     {
-        internal string email;
-        internal object name;
-        internal string password;
-
         public int Id { get; set; }
         public string Emp_Name { get; set; }
         public string Emp_Email { get; set; }
-        public Nullable<int> Emp_Salary { get; set; }
+        public int Emp_Salary { get; set; }
         public string Emp_Id { get; set; }
     }
 }

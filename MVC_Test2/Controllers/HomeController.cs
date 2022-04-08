@@ -1,8 +1,11 @@
 ﻿using MVC_Test2.Data_Mvc;
 using MVC_Test2.Models;
+using Newtonsoft.Json;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
@@ -11,6 +14,14 @@ namespace MVC_Test2.Controllers
 {
     public class HomeController : Controller
     {
+        Uri baseaddress = new Uri("http://localhost:60126/");
+        HttpClient client = new HttpClient();
+        public HomeController()
+        {
+            client.BaseAddress = baseaddress;
+        }
+
+
         [HttpGet]
         public ActionResult Index()
         {
@@ -42,7 +53,7 @@ namespace MVC_Test2.Controllers
             return View();
         }
         [HttpGet]
-        public ActionResult Registraion()
+        public ActionResult Registration()
         {
 
             return View();
@@ -58,7 +69,7 @@ namespace MVC_Test2.Controllers
 
             dobj.login_table.Add(tobj);
             dobj.SaveChanges();
-            return View();
+            return RedirectToAction("Index");
         }
 
         [Authorize]
@@ -69,23 +80,48 @@ namespace MVC_Test2.Controllers
         [Authorize]
         public ActionResult Tables()
         {
-            Emp_DetailsEntities dobj = new Emp_DetailsEntities();
-            List<F_Class> mobj = new List<F_Class>();
-            var res = dobj.EMP_Entry.ToList();
-            foreach (var item in res)
+            //var client = new RestClient("http://localhost:52047/test/gettable");
+            //client.Timeout = -1;
+            //var request = new RestRequest(Method.GET);
+            //IRestResponse response = client.ExecuteGetAsync(request);
+            //Console.WriteLine(response.Content);
+
+            //List<EMP_Entry> tobj = new List<EMP_Entry>();
+            //List<F_Class> cobj = new List<F_Class>();
+            //HttpResponseMessage rmsg = client.GetAsync(client.BaseAddress + "test/gettable").Result;
+            //if (rmsg.IsSuccessStatusCode)
+            //{
+            //    string data = rmsg.Content.ReadAsStringAsync().Result;
+            //    tobj = JsonConvert.DeserializeObject<List<EMP_Entry>>(data);
+            //}
+
+
+            List<F_Class> tobj = new List<F_Class>();
+            HttpResponseMessage rmsg = client.GetAsync(client.BaseAddress + "Test/gettable").Result;
+            if (rmsg.IsSuccessStatusCode)
             {
-                mobj.Add(new F_Class
-                {
-                    Id = item.Id,
-                    Emp_Name = item.Emp_Name,
-                    Emp_Email = item.Emp_Email,
-                    Emp_Salary = item.Emp_Salary,
-                    Emp_Id = item.Emp_Id
-
-                });
-
+                string data = rmsg.Content.ReadAsStringAsync().Result;
+                tobj = JsonConvert.DeserializeObject<List<F_Class>>(data);
             }
-            return View(mobj);
+            return View(tobj); 
+
+             
+
+            //foreach (var item in tobj)
+            //{
+            //    cobj.Add(new F_Class
+            //    {
+            //        Id = item.Id,
+            //        Emp_Name = item.Emp_Name,
+            //        Emp_Email = item.Emp_Email,
+            //        Emp_Salary = item.Emp_Salary,
+            //        Emp_Id = item.Emp_Id
+
+            //    });
+
+            //}
+            //return View(cobj);
+           
         }
 
         [Authorize]
@@ -111,7 +147,7 @@ namespace MVC_Test2.Controllers
             tobj.Id = mobj.Id;
             tobj.Emp_Name = mobj.Emp_Name;
             tobj.Emp_Email = mobj.Emp_Email;
-            tobj.Emp_Salary = mobj.Emp_Salary;
+            tobj.Emp_Salary = (int)mobj.Emp_Salary;
             tobj.Emp_Id = mobj.Emp_Id;
             if (mobj.Id == 0)
             {
